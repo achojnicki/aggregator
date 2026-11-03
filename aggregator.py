@@ -84,15 +84,13 @@ r=requests.get(CLOUDFLARE_IPv4_URL)
 d=r.text
 d=d.split('\n')
 
-for x in d:
-	cloudflare_addr.append(x)
+cloudflare_addr=cloudflare_addr+d
 
 r=requests.get(CLOUDFLARE_IPv6_URL)
 d=r.text
 d=d.split('\n')
 
-for x in d:
-	cloudflare_addr.append(x)
+cloudflare_addr=cloudflare_addr+d
 
 
 for url in HOSTS_URLS+C2_URLS:
@@ -115,7 +113,7 @@ for domain in domains:
 		res=dns.resolver.resolve(domain,'a')
 		for d in res:
 			addr=d.to_text()
-			if addr not in ipv4_addr and in_any(addr, cloudflare_addr):
+			if addr not in ipv4_addr and not in_any(addr, cloudflare_addr):
 				ipv4_addr.append(d.to_text())
 
 			if in_any(addr, cloudflare_addr):
