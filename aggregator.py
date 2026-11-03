@@ -81,7 +81,9 @@ for domain in domains:
 	try:
 		res=dns.resolver.resolve(domain,'a')
 		for d in res:
-			ipv4_addr.append(d.to_text())
+			addr=d.to_text()
+			if addr not in ipv4_addr:
+				ipv4_addr.append(d.to_text())
 		
 		if len(res)>0:
 			SUCCESS_IPv4+=1
@@ -98,7 +100,9 @@ for domain in domains:
 	try:
 		res=dns.resolver.resolve(domain,'aaaa')
 		for d in res:
-			ipv6_addr.append(d.to_text())
+			addr=d.to_text()
+			if addr not in ipv6_addr:
+				ipv6_addr.append(d.to_text())
 		
 		if len(res)>0:
 			SUCCESS_IPv6+=1
