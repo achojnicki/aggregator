@@ -1,9 +1,12 @@
 import requests, re
 import dns
 import dns.resolver
+import ipaddress
 
 TLD_REGEX=r"(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.){1,4}(?:[a-zA-Z]{2,63}|xn--[a-zA-Z0-9]{1,59})"
 
+CLOUDFLARE_IPv4_URL="https://www.cloudflare.com/ips-v4"
+CLOUDFLARE_IPv6_URL="https://www.cloudflare.com/ips-v6"
 
 FILE_FORMAT="""\
 #IPv4
@@ -37,9 +40,12 @@ NXDOMAIN_IPv6=0
 EMPTY_IPv4=0
 EMPTY_IPv6=0
 EXCPT=0
+CLOUDFLARE_IPv4=0
+CLOUDFLARE_IPv6=0
 
 ipv4_addr=[]
 ipv6_addr=[]
+cloudflare_addr=[]
 
 domains=[]
 results=[]
@@ -59,11 +65,35 @@ def join(data):
 		r+=x+"\n"
 	return r
 
+def in_any(ip_str, cidrs):
+    ip = ipaddress.ip_address(ip_str)
+    for c in cidrs:
+        net = ipaddress.ip_network(c, strict=False)
+        if ip.version == net.version and ip in net:
+            return True
+    return False
+
 def print_stats():
 	print(f"success_ipv4: {SUCCESS_IPv4}, SUCCESS_IPv6: {SUCCESS_IPv6}")
 	print(f"EMPTY_IPv4: {EMPTY_IPv4}, EMPTY_IPv6: {EMPTY_IPv6}")
 	print(f"NXDOMAIN_IPv4: {NXDOMAIN_IPv4}, NXDOMAIN_IPv6: {NXDOMAIN_IPv6}")
+	print(f"CLOUDFLARE_IPv4: {CLOUDFLARE_IPv4}, CLOUDFLARE_IPv6: {CLOUDFLARE_IPv6}")
 	print(f"EXCPT: {EXCPT}")
+
+r=requests.get(CLOUDFLARE_IPv4_URL)
+d=r.text
+d=d.split('\n')
+
+for x in d:
+	cloudflare_addr.append(x)
+
+r=requests.get(CLOUDFLARE_IPv6_URL)
+d=r.text
+d=d.split('\n')
+
+for x in d:
+	cloudflare_addr.append(x)
+
 
 for url in HOSTS_URLS+C2_URLS:
 	r=requests.get(url)
@@ -76,17 +106,23 @@ for result in results:
 	domains=domains+r
 
 
+
+
+
 for domain in domains:
 	#ipv4
 	try:
 		res=dns.resolver.resolve(domain,'a')
 		for d in res:
 			addr=d.to_text()
-			if addr not in ipv4_addr:
+			if addr not in ipv4_addr and in_any(addr, cloudflare_addr):
 				ipv4_addr.append(d.to_text())
-		
+
+			if in_any(addr, cloudflare_addr):
+				CLOUDFLARE_IPv4+=1
+
 		if len(res)>0:
-			SUCCESS_IPv4+=1
+			SUCCESS_IPv4+=len(res)
 		else:
 			EMPTY_IPv4+=1
 
@@ -101,11 +137,14 @@ for domain in domains:
 		res=dns.resolver.resolve(domain,'aaaa')
 		for d in res:
 			addr=d.to_text()
-			if addr not in ipv6_addr:
+			if addr not in ipv6_addr and not in_any(addr, cloudflare_addr):
 				ipv6_addr.append(d.to_text())
-		
+
+			if in_any(addr, cloudflare_addr):
+				CLOUDFLARE_IPv6+=1
+
 		if len(res)>0:
-			SUCCESS_IPv6+=1
+			SUCCESS_IPv6+=len(res)
 		else:
 			EMPTY_IPv6+=1
 
@@ -113,7 +152,6 @@ for domain in domains:
 		NXDOMAIN_IPv6+=1
 
 	except:
-
 		EXCPT+=1
 	print_stats()
 
