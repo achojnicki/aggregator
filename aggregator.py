@@ -82,13 +82,13 @@ r=requests.get('https://ip-ranges.amazonaws.com/ip-ranges.json')
 d=r.json()
 
 for prefix in d['prefixes']:
-	if prefix['service'] != 'CLOUDFRONT':
+	if prefix['service'] != 'CLOUDFRONT' and prefix['service'] !='GLOBALACCELERATOR':
 		subnets_aws.append(prefix['ip_prefix'])
 	else:
 		subnets_cloudfront.append(prefix['ip_prefix'])
 
 for prefix in d['ipv6_prefixes']:
-	if prefix['service'] != 'CLOUDFRONT':
+	if prefix['service'] != 'CLOUDFRONT' and prefix['service'] !='GLOBALACCELERATOR':
 		subnets_aws.append(prefix['ipv6_prefix'])
 	else:
 		subnets_cloudfront.append(prefix['ipv6_prefix'])
