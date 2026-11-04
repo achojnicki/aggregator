@@ -57,6 +57,7 @@ ipv6_addr=[]
 aws_ipv6_addr=[]
 subnets_cloudflare=[]
 subnets_aws=[]
+subnets_cloudfront=[]
 
 domains=[]
 results=[]
@@ -83,10 +84,14 @@ d=r.json()
 for prefix in d['prefixes']:
 	if prefix['service'] != 'CLOUDFRONT':
 		subnets_aws.append(prefix['ip_prefix'])
+	else:
+		subnets_cloudfront.append(prefix['ip_prefix'])
 
 for prefix in d['ipv6_prefixes']:
 	if prefix['service'] != 'CLOUDFRONT':
 		subnets_aws.append(prefix['ipv6_prefix'])
+	else:
+		subnets_cloudfront.append(prefix['ipv6_prefix'])
 
 def clean_up(data):
 	ready=""
@@ -141,11 +146,11 @@ for domain in domains:
 		res=dns.resolver.resolve(domain,'a')
 		for d in res:
 			addr=d.to_text()
-			if addr not in ipv4_addr and not in_any(addr, subnets_cloudflare) and not in_any(addr,subnets_aws):
+			if addr not in ipv4_addr and not in_any(addr, subnets_cloudflare) and not in_any(addr,subnets_aws) and not in_any(addr, subnets_cloudfront):
 				ipv4_addr.append(addr)
 				SUCCESS_IPv4+=1
 
-			elif addr not in aws_ipv4_addr and not in_any(addr, subnets_cloudflare) and in_any(addr,subnets_aws):
+			elif addr not in aws_ipv4_addr and not in_any(addr, subnets_cloudflare) and not in_any(addr,subnets_cloudfront) and in_any(addr,subnets_aws):
 				aws_ipv4_addr.append(addr)
 				SUCCESS_IPv4_AWS+=1
 
@@ -161,11 +166,11 @@ for domain in domains:
 		res=dns.resolver.resolve(domain,'aaaa')
 		for d in res:
 			addr=d.to_text()
-			if addr not in ipv6_addr and not in_any(addr, subnets_cloudflare) and not in_any(addr,subnets_aws):
+			if addr not in ipv6_addr and not in_any(addr, subnets_cloudflare) and not in_any(addr,subnets_aws) and not in_any(addr, subnets_cloudfront):
 				ipv6_addr.append(addr)
 				SUCCESS_IPv6+=1
 
-			elif addr not in aws_ipv6_addr and not in_any(addr, subnets_cloudflare) and in_any(addr,subnets_aws):
+			elif addr not in aws_ipv6_addr and not in_any(addr, subnets_cloudflare) and not in_any(addr,subnets_cloudfront) and in_any(addr,subnets_aws):
 				aws_ipv6_addr.append(addr)
 				SUCCESS_IPv6_AWS+=1
 
