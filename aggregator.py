@@ -11,6 +11,18 @@ CLOUDFLARE_IPv6_URL="https://www.cloudflare.com/ips-v6"
 AWS_URL="https://ip-ranges.amazonaws.com/ip-ranges.json"
 
 FILE_FORMAT="""\
+#This list is basically aggreagation of the bellow blacklists queried through the Cloudflare DNS and in the final step filtered off the Cloudflare and AWS Cloudfront IPs.
+#See the code at : https://github.com/achojnicki/aggregator
+#
+#https://raw.githubusercontent.com/0n1cOn3/The-Paragon-Blacklist/main/hosts.txt
+#https://raw.githubusercontent.com/0n1cOn3/The-Intellexa-Blocklist/main/hosts.txt
+#https://raw.githubusercontent.com/0n1cOn3/The-Candiru-Blocklist/main/hosts.txt
+#https://raw.githubusercontent.com/0n1cOn3/The-NSO-Blacklist/main/hosts.txt
+#https://raw.githubusercontent.com/0n1cOn3/The-Paragon-Blacklist/main/C2-hosts.txt
+#https://raw.githubusercontent.com/0n1cOn3/The-Intellexa-Blocklist/main/C2-hosts.txt
+#https://raw.githubusercontent.com/0n1cOn3/The-Candiru-Blocklist/main/C2-hosts.txt
+#https://raw.githubusercontent.com/0n1cOn3/The-NSO-Blacklist/main/C2-hosts.txt
+
 #IPv4
 
 ##aws
